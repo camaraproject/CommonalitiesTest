@@ -1,0 +1,53 @@
+# CAMARA Release Automation — intentionally NOT installed
+#
+# This placeholder exists so that the absence of a release-automation caller is
+# visible in the Actions tab, rather than looking like an oversight someone
+# should fix by installing one. It does nothing; run it to get the explanation
+# below as a run summary.
+#
+# Do not replace this with a release-automation caller without reading the
+# repository README first.
+
+name: Release Automation — intentionally not installed
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  explain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain why release automation is not installed
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Release Automation is intentionally not installed here
+
+          This repository is a **validation regression test fixture**, not an API
+          repository. It never publishes releases. See the
+          [repository README](https://github.com/camaraproject/CommonalitiesTest#readme)
+          for what the fixture is for.
+
+          ### Why removed rather than left inert
+
+          A release-automation caller triggers on pushes to `release-plan.yaml`
+          and `code/common/**`. Both change routinely here — syncing common files
+          from Commonalities `main` is this repository's normal operation. Every
+          sync would run `sync-issue` against a declared Commonalities release
+          that does not exist yet, because validating content *ahead of* its
+          release is the entire point of this fixture.
+
+          ### Where release automation is actually tested
+
+          [camaraproject/ReleaseTest](https://github.com/camaraproject/ReleaseTest)
+          exists for exactly that purpose.
+
+          ### Note on `release-plan.yaml`
+
+          `release-plan.yaml` **is** present and **is** required — CAMARA
+          Validation reads the declared Commonalities release from it. It is
+          validation input here, not release automation input. Its presence is
+          not evidence that release automation belongs here.
+          EOF
+          echo "See the run summary for details."
