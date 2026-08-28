@@ -33,18 +33,27 @@ dependencies:
 # - api_name: kebab-case identifier (used as filename in code/API_definitions/)
 # - target_api_status: draft | alpha | rc | public (draft allows no file yet)
 apis:
-  - api_name: sample-service
-    target_api_version: 0.1.0
+  - api_name: qos-profiles
+    target_api_version: 1.2.0
     target_api_status: rc
     main_contacts:
       - hdamker
-  - api_name: sample-service-subscriptions
-    target_api_version: 0.1.0
+      - eric-murray
+      - benhepworth
+      - jlurien
+  - api_name: qos-provisioning
+    target_api_version: 0.4.0
     target_api_status: rc
     main_contacts:
       - hdamker
-  - api_name: sample-implicit-events
-    target_api_version: 0.1.0
+      - eric-murray
+      - benhepworth
+      - jlurien
+  - api_name: quality-on-demand
+    target_api_version: 1.2.0
     target_api_status: rc
     main_contacts:
       - hdamker
+      - eric-murray
+      - benhepworth
+      - jlurien
