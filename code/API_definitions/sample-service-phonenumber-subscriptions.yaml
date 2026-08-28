@@ -1,21 +1,46 @@
-# NOTE: This is a template. Replace all occurrences of "sample-service-subscriptions"
-# (and its Title Case variant) with the actual API name in the appropriate casing.
+# CommonalitiesTest regression fixture — not a Commonalities-maintained
+# API template. A phoneNumber-identified variant of
+# sample-service-subscriptions.yaml: the same explicit-subscription
+# template, with `phoneNumber` added as the API-specific subscription
+# detail, so that the subscription-creation `422` uses
+# CreateSubscriptionPhoneNumber422 instead of the device-identified
+# variant — closing the one remaining coverage gap in
+# CAMARA_event_common.yaml.
 openapi: 3.0.3
 info:
-  title: Sample Service Subscription Template
+  title: Sample Service Subscription Phone Number Template
   description: |
-    This file is a template for CAMARA API explicit subscription endpoint and for Notification model.
-    Additional information are provided in [CAMARA API Event Subscription and Notification Guide](https://github.com/camaraproject/Commonalities/blob/main/documentation/CAMARA-API-Event-Subscription-and-Notification-Guide.md).
+    CommonalitiesTest regression fixture. Not a community-facing API
+    template — a private aid closing the one remaining transitive-coverage
+    gap in `CAMARA_event_common.yaml`: `CreateSubscriptionPhoneNumber422`.
+    Otherwise identical to `sample-service-subscriptions.yaml`, with
+    `phoneNumber` added as the API-specific subscription detail.
+
+    Additional information is provided in [CAMARA API Event Subscription and Notification Guide](https://github.com/camaraproject/Commonalities/blob/main/documentation/CAMARA-API-Event-Subscription-and-Notification-Guide.md).
 
     Note on event name convention: the event type name MUST follow: ``org.camaraproject.<api-name>.<event-version>.<event-name>``
 
     Note on ``security`` - ``openId`` scope: The scope values must be replaced accordingly to the format defined in the guideline document.
 
-    What follows are the mandatory CAMARA `info.description` content blocks, each bracketed by `<!-- CAMARA:MANDATORY:<name>:BEGIN/END -->` HTML comments (invisible in rendered documentation). The reference text lives in `code/common/info-description-templates.yaml` (synced from Commonalities); copy each block as-is from there. The Appendix A block (`identifying-device-from-access-token` / `identifying-phone-number-from-access-token`) is not included in this sample because its data model does not use `device` or `phoneNumber` as a subject identifier; APIs that do should include the applicable variant.
+    <!-- CAMARA:MANDATORY:identifying-phone-number-from-access-token:BEGIN -->
 
-    > In case of conflict, the authoritative source (API Design Guide for §3.2.3 / §3.2.4 / Appendix A; the ICM authorization-and-authentication template) takes precedence. This disclaimer applies to the mandatory texts and to any other content in this sample.
+    # Identifying the phone number from the access token
+
+    This API requires the API consumer to identify a phone number as the subject of the API as follows:
+    - When the API is invoked using a two-legged access token, the subject will be identified from the optional `phoneNumber` field, which therefore MUST be provided.
+    - When a three-legged access token is used however, this optional identifier MUST NOT be provided, as the subject will be uniquely identified from the access token.
+
+    This approach simplifies API usage for API consumers using a three-legged access token to invoke the API by relying on the information that is associated with the access token and was identified during the authentication process.
+
+    ## Error handling:
+
+    - If the subject cannot be identified from the access token and the optional `phoneNumber` field is not included in the request, then the server will return an error with the `422 MISSING_IDENTIFIER` error code.
+
+    - If the subject can be identified from the access token and the optional `phoneNumber` field is also included in the request, then the server will return an error with the `422 UNNECESSARY_IDENTIFIER` error code. This will be the case even if the same phone number is identified by these two methods, as the server is unable to make this comparison.
+    <!-- CAMARA:MANDATORY:identifying-phone-number-from-access-token:END -->
 
     <!-- CAMARA:MANDATORY:authorization-and-authentication:BEGIN -->
+
     # Authorization and authentication
 
     The "Camara Security and Interoperability Profile" provides details of how an API consumer requests an access token. Please refer to Identity and Consent Management (https://github.com/camaraproject/IdentityAndConsentManagement/) for the released version of the profile.
@@ -26,16 +51,18 @@ info:
     <!-- CAMARA:MANDATORY:authorization-and-authentication:END -->
 
     <!-- CAMARA:MANDATORY:additional-error-responses:BEGIN -->
+
     # Additional CAMARA error responses
 
     The list of error codes in this API specification is not exhaustive. Therefore the API specification MAY not document some non-mandatory error statuses as indicated in `CAMARA API Design Guide`.
 
-    Please refer to the `CAMARA_common.yaml` of the Commonalities Release associated to this API version for a complete list of error responses. The applicable Commonalities Release can be identified in the `API Readiness Checklist` document associated to this API version.
+    Please refer to the `CAMARA_common.yaml` of the Commonalities Release associated to this API version for a complete list of error responses. The applicable Commonalities Release can be identified from the `x-camara-commonalities` field, the changelog and the metadata of the released API version.
 
     As a specific rule, error `501 - NOT_IMPLEMENTED` can be only a possible error response if it is explicitly documented in the API.
     <!-- CAMARA:MANDATORY:additional-error-responses:END -->
 
     <!-- CAMARA:MANDATORY:request-body-strictness:BEGIN -->
+
     # Request body strictness
 
     This API rejects requests with JSON request bodies that contain properties not declared in this specification, at any nesting level. Unknown properties result in a `400 INVALID_ARGUMENT` response.
@@ -45,27 +72,26 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
   version: wip
-  x-camara-commonalities: 0.8.0
+  x-camara-commonalities: wip
 
 externalDocs:
   description: Product documentation at CAMARA
   url: https://github.com/camaraproject/CommonalitiesTest
-  # {apiRepository} MUST be replaced by the CAMARA Subproject Repository name where the API design based on this template is hosted.
 servers:
-  - url: "{apiRoot}/sample-service-subscriptions/vwip"
+  - url: "{apiRoot}/sample-service-phonenumber-subscriptions/vwip"
     variables:
       apiRoot:
         default: http://localhost:9091
         description: API root, defined by the service provider, e.g. `api.example.com` or `api.example.com/somepath`
 tags:
-  - name: Sample Service Subscription
-    description: Operations to manage event subscriptions on event-type event
+  - name: Sample Service Subscription Phone Number
+    description: Operations to manage event subscriptions on event-type event, identified by phoneNumber
 
 paths:
   /subscriptions:
     post:
       tags:
-        - Sample Service Subscription
+        - Sample Service Subscription Phone Number
       summary: "Create a sample service event subscription"
       description: Create a sample service event subscription
       operationId: createSampleServiceSubscription
@@ -73,8 +99,8 @@ paths:
         - $ref: "../common/CAMARA_common.yaml#/components/parameters/x-correlator"
       security:
         - openId:
-            - sample-service-subscriptions:event-type1:grant-level
-            - sample-service-subscriptions:event-type2:grant-level
+            - sample-service-phonenumber-subscriptions:event-type1:grant-level
+            - sample-service-phonenumber-subscriptions:event-type2:grant-level
       requestBody:
         content:
           application/json:
@@ -106,15 +132,15 @@ paths:
                     x-correlator:
                       $ref: "../common/CAMARA_common.yaml#/components/headers/x-correlator"
                 "400":
-                  $ref: "../common/CAMARA_common.yaml#/components/responses/Generic400"
+                  $ref: "../common/CAMARA_common.yaml#/components/responses/BadRequest400"
                 "401":
-                  $ref: "../common/CAMARA_common.yaml#/components/responses/Generic401"
+                  $ref: "../common/CAMARA_common.yaml#/components/responses/Unauthenticated401"
                 "403":
-                  $ref: "../common/CAMARA_common.yaml#/components/responses/Generic403"
+                  $ref: "../common/CAMARA_common.yaml#/components/responses/PermissionDenied403"
                 "410":
-                  $ref: "../common/CAMARA_common.yaml#/components/responses/Generic410"
+                  $ref: "../common/CAMARA_event_common.yaml#/components/responses/SinkGone410"
                 "429":
-                  $ref: "../common/CAMARA_common.yaml#/components/responses/Generic429"
+                  $ref: "../common/CAMARA_common.yaml#/components/responses/TooManyRequests429"
               security:
                 - {}
                 - notificationsBearerAuth: []
@@ -141,18 +167,18 @@ paths:
         "400":
           $ref: "../common/CAMARA_event_common.yaml#/components/responses/CreateSubscriptionBadRequest400"
         "401":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic401"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/Unauthenticated401"
         "403":
           $ref: "../common/CAMARA_event_common.yaml#/components/responses/SubscriptionPermissionDenied403"
         "409":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic409"
+          $ref: "../common/CAMARA_event_common.yaml#/components/responses/CreateSubscriptionConflict409"
         "422":
-          $ref: "../common/CAMARA_event_common.yaml#/components/responses/CreateSubscriptionUnprocessableEntity422"
+          $ref: "../common/CAMARA_event_common.yaml#/components/responses/CreateSubscriptionPhoneNumber422"
         "429":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic429"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/TooManyRequests429"
     get:
       tags:
-        - Sample Service Subscription
+        - Sample Service Subscription Phone Number
       summary: "Retrieve a list of sample service event subscriptions"
       description: Retrieve a list of sample service event subscriptions
       operationId: retrieveSampleServiceSubscriptionList
@@ -162,7 +188,7 @@ paths:
         - $ref: "../common/CAMARA_common.yaml#/components/parameters/perPage"
       security:
         - openId:
-            - sample-service-subscriptions:read
+            - sample-service-phonenumber-subscriptions:read
       responses:
         "200":
           description: List of event subscription details
@@ -181,21 +207,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubscriptionList"
         "400":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic400"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/BadRequest400"
         "401":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic401"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/Unauthenticated401"
         "403":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic403"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/PermissionDenied403"
   /subscriptions/{subscriptionId}:
     get:
       tags:
-        - Sample Service Subscription
+        - Sample Service Subscription Phone Number
       summary: "Retrieve a sample service event subscription"
       description: Retrieve sample service subscription information for a given subscription.
       operationId: retrieveSampleServiceSubscription
       security:
         - openId:
-            - sample-service-subscriptions:read
+            - sample-service-phonenumber-subscriptions:read
       parameters:
         - $ref: "#/components/parameters/SubscriptionId"
         - $ref: "../common/CAMARA_common.yaml#/components/parameters/x-correlator"
@@ -212,20 +238,20 @@ paths:
         "400":
           $ref: "../common/CAMARA_event_common.yaml#/components/responses/SubscriptionIdRequired400"
         "401":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic401"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/Unauthenticated401"
         "403":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic403"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/PermissionDenied403"
         "404":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic404"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/NotFound404"
     delete:
       tags:
-        - Sample Service Subscription
+        - Sample Service Subscription Phone Number
       summary: "Delete a sample service event subscription"
       operationId: deleteSampleServiceSubscription
       description: Delete a given sample service subscription.
       security:
         - openId:
-            - sample-service-subscriptions:delete
+            - sample-service-phonenumber-subscriptions:delete
       parameters:
         - $ref: "#/components/parameters/SubscriptionId"
         - $ref: "../common/CAMARA_common.yaml#/components/parameters/x-correlator"
@@ -247,11 +273,11 @@ paths:
         "400":
           $ref: "../common/CAMARA_event_common.yaml#/components/responses/SubscriptionIdRequired400"
         "401":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic401"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/Unauthenticated401"
         "403":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic403"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/PermissionDenied403"
         "404":
-          $ref: "../common/CAMARA_common.yaml#/components/responses/Generic404"
+          $ref: "../common/CAMARA_common.yaml#/components/responses/NotFound404"
 
 components:
   securitySchemes:
@@ -291,12 +317,9 @@ components:
         protocol:
           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/Protocol"
         sink:
-          type: string
-          format: uri
-          maxLength: 2048
-          pattern: ^https:\/\/.+$
           description: The address to which events shall be delivered using the selected protocol.
-          example: "https://endpoint.example.com/sink"
+          allOf:
+            - $ref: "../common/CAMARA_event_common.yaml#/components/schemas/Sink"
         sinkCredential:
           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/SinkCredential"
         types:
@@ -312,7 +335,7 @@ components:
           items:
             $ref: "#/components/schemas/ApiEventType"
         config:
-          $ref: "../common/CAMARA_event_common.yaml#/components/schemas/Config"
+          $ref: "#/components/schemas/Config"
       discriminator:
         propertyName: protocol
         mapping:
@@ -337,12 +360,9 @@ components:
         protocol:
           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/Protocol"
         sink:
-          type: string
-          format: uri
-          maxLength: 2048
-          pattern: ^https:\/\/.+$
           description: The address to which events shall be delivered using the selected protocol.
-          example: "https://endpoint.example.com/sink"
+          allOf:
+            - $ref: "../common/CAMARA_event_common.yaml#/components/schemas/Sink"
         sinkCredential:
           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/SinkCredential"
         types:
@@ -355,7 +375,7 @@ components:
           items:
             $ref: "#/components/schemas/ApiEventType"
         config:
-          $ref: "../common/CAMARA_event_common.yaml#/components/schemas/Config"
+          $ref: "#/components/schemas/Config"
         id:
           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/SubscriptionId"
         startsAt:
@@ -415,6 +435,44 @@ components:
           $ref: "../common/CAMARA_common.yaml#/components/schemas/Pagination"
 
     # ─────────────────────────────────────────────────────────────────────────
+    # Config (API-specific due to subscriptionDetail)
+    #
+    # Extends the Commonalities-owned ConfigBase via allOf, adding the
+    # required `subscriptionDetail` property. `subscriptionDetail` carries
+    # this variant's `phoneNumber` subject identifier — the whole reason
+    # this file exists — since it is API-specific and cannot live in
+    # CAMARA_event_common.yaml.
+    # ─────────────────────────────────────────────────────────────────────────
+
+    Config:
+      description: |
+        Implementation-specific configuration parameters needed by the subscription manager
+        for acquiring events. Extends `ConfigBase` from `CAMARA_event_common.yaml` with the
+        required, API-specific `subscriptionDetail` property.
+        Note: if a request is performed for several event types, all subscribed events will
+        use the same `config` parameters.
+      allOf:
+        - $ref: "../common/CAMARA_event_common.yaml#/components/schemas/ConfigBase"
+        - type: object
+          required:
+            - subscriptionDetail
+          properties:
+            subscriptionDetail:
+              $ref: "#/components/schemas/CreateSubscriptionDetail"
+
+    CreateSubscriptionDetail:
+      description: |
+        The detail of the requested event subscription. `phoneNumber` is the
+        subject identifier this variant tests: when it cannot be resolved
+        (neither provided here nor derivable from the access token, or
+        redundantly both), subscription creation returns
+        `CreateSubscriptionPhoneNumber422`.
+      type: object
+      properties:
+        phoneNumber:
+          $ref: "../common/CAMARA_common.yaml#/components/schemas/PhoneNumber"
+
+    # ─────────────────────────────────────────────────────────────────────────
     # API-specific event type enum (contains sample-service placeholders)
     # ─────────────────────────────────────────────────────────────────────────
 
@@ -426,8 +484,8 @@ components:
         globally unique, so two different API groups can independently define
         identically-named event types without any collision risk.
       enum:
-        - org.camaraproject.sample-service-subscriptions.v0.event-type1
-        - org.camaraproject.sample-service-subscriptions.v0.event-type2
+        - org.camaraproject.sample-service-phonenumber-subscriptions.v0.event-type1
+        - org.camaraproject.sample-service-phonenumber-subscriptions.v0.event-type2
 
     # ─────────────────────────────────────────────────────────────────────────
     # Subscription lifecycle event group (Commonalities-owned structure,
@@ -456,9 +514,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          org.camaraproject.sample-service-subscriptions.v0.subscription-started: "#/components/schemas/EventSubscriptionStarted"
-          org.camaraproject.sample-service-subscriptions.v0.subscription-updated: "#/components/schemas/EventSubscriptionUpdated"
-          org.camaraproject.sample-service-subscriptions.v0.subscription-ended: "#/components/schemas/EventSubscriptionEnded"
+          org.camaraproject.sample-service-phonenumber-subscriptions.v0.subscription-started: "#/components/schemas/EventSubscriptionStarted"
+          org.camaraproject.sample-service-phonenumber-subscriptions.v0.subscription-updated: "#/components/schemas/EventSubscriptionUpdated"
+          org.camaraproject.sample-service-phonenumber-subscriptions.v0.subscription-ended: "#/components/schemas/EventSubscriptionEnded"
 
     SubscriptionLifecycleEventType:
       type: string
@@ -469,9 +527,9 @@ components:
         Kept as a separate named schema so the set of valid lifecycle type
         strings can be referenced independently from the discriminated schema.
       enum:
-        - org.camaraproject.sample-service-subscriptions.v0.subscription-started
-        - org.camaraproject.sample-service-subscriptions.v0.subscription-updated
-        - org.camaraproject.sample-service-subscriptions.v0.subscription-ended
+        - org.camaraproject.sample-service-phonenumber-subscriptions.v0.subscription-started
+        - org.camaraproject.sample-service-phonenumber-subscriptions.v0.subscription-updated
+        - org.camaraproject.sample-service-phonenumber-subscriptions.v0.subscription-ended
 
     # ─────────────────────────────────────────────────────────────────────────
     # API-specific notification event group
@@ -499,8 +557,8 @@ components:
       discriminator:
         propertyName: "type"
         mapping:
-          org.camaraproject.sample-service-subscriptions.v0.event-type1: "#/components/schemas/EventApiSpecific1"
-          org.camaraproject.sample-service-subscriptions.v0.event-type2: "#/components/schemas/EventApiSpecific2"
+          org.camaraproject.sample-service-phonenumber-subscriptions.v0.event-type1: "#/components/schemas/EventApiSpecific1"
+          org.camaraproject.sample-service-phonenumber-subscriptions.v0.event-type2: "#/components/schemas/EventApiSpecific2"
 
     # ─────────────────────────────────────────────────────────────────────────
     # Callback union (API project-owned)
@@ -587,64 +645,6 @@ components:
     # ─────────────────────────────────────────────────────────────────────────
     # Protocol-specific subscription schemas
     # Protocol settings are referenced from CAMARA_event_common.yaml.
-    #
-    # Future protocol support (not yet used in CAMARA):
-    # MQTTSubscriptionRequest:
-    #   allOf:
-    #     - $ref: "#/components/schemas/SubscriptionRequest"
-    #     - type: object
-    #       properties:
-    #         protocolSettings:
-    #           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/MQTTSettings"
-    # MQTTSubscriptionResponse:
-    #   allOf:
-    #     - $ref: "#/components/schemas/Subscription"
-    #     - type: object
-    #       properties:
-    #         protocolSettings:
-    #           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/MQTTSettings"
-    # AMQPSubscriptionRequest:
-    #   allOf:
-    #     - $ref: "#/components/schemas/SubscriptionRequest"
-    #     - type: object
-    #       properties:
-    #         protocolSettings:
-    #           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/AMQPSettings"
-    # AMQPSubscriptionResponse:
-    #   allOf:
-    #     - $ref: "#/components/schemas/Subscription"
-    #     - type: object
-    #       properties:
-    #         protocolSettings:
-    #           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/AMQPSettings"
-    # ApacheKafkaSubscriptionRequest:
-    #   allOf:
-    #     - $ref: "#/components/schemas/SubscriptionRequest"
-    #     - type: object
-    #       properties:
-    #         protocolSettings:
-    #           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/ApacheKafkaSettings"
-    # ApacheKafkaSubscriptionResponse:
-    #   allOf:
-    #     - $ref: "#/components/schemas/Subscription"
-    #     - type: object
-    #       properties:
-    #         protocolSettings:
-    #           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/ApacheKafkaSettings"
-    # NATSSubscriptionRequest:
-    #   allOf:
-    #     - $ref: "#/components/schemas/SubscriptionRequest"
-    #     - type: object
-    #       properties:
-    #         protocolSettings:
-    #           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/NATSSettings"
-    # NATSSubscriptionResponse:
-    #   allOf:
-    #     - $ref: "#/components/schemas/Subscription"
-    #     - type: object
-    #       properties:
-    #         protocolSettings:
-    #           $ref: "../common/CAMARA_event_common.yaml#/components/schemas/NATSSettings"
     # ─────────────────────────────────────────────────────────────────────────
 
     HTTPSubscriptionRequest:
