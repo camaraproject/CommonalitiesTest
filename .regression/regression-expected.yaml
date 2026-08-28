@@ -1,0 +1,22 @@
+schema_version: 1
+branch: regression/all-definitions-coverage
+description: >-
+  Initial baseline. S-313 hints are free-text string fields, accepted per
+  the rule's own metadata. P-006 is the deferred, empty Test_definitions,
+  matching 021.
+captured_at: '2026-08-28T21:06:00Z'
+captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/33211012883
+summary:
+  errors: 0
+  warnings: 2
+  hints: 2
+match_mode: exact
+findings:
+- rule_id: P-006
+  path: code/Test_definitions
+  level: warn
+  count: 2
+- rule_id: S-313
+  path: code/API_definitions/sample-service-all-definitions.yaml
+  level: hint
+  count: 2
