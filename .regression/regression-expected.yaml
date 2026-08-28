@@ -1,0 +1,31 @@
+schema_version: 1
+branch: regression/qod-r4.1
+captured_at: '2026-08-28T13:13:03Z'
+captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/33174336841
+summary:
+  errors: 0
+  warnings: 6
+  hints: 1
+match_mode: exact
+findings:
+- rule_id: P-027
+  path: code/API_definitions/qos-profiles.yaml
+  level: warn
+- rule_id: P-027
+  path: code/API_definitions/qos-provisioning.yaml
+  level: warn
+- rule_id: P-027
+  path: code/API_definitions/quality-on-demand.yaml
+  level: warn
+- rule_id: P-038
+  path: code/API_definitions/qos-profiles.yaml
+  level: warn
+- rule_id: P-038
+  path: code/API_definitions/qos-provisioning.yaml
+  level: warn
+- rule_id: P-038
+  path: code/API_definitions/quality-on-demand.yaml
+  level: warn
+- rule_id: S-007
+  path: code/API_definitions/qos-profiles.yaml
+  level: hint
