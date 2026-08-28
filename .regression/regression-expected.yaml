@@ -1,0 +1,26 @@
+schema_version: 1
+branch: regression/device-roaming-status-r2.1
+captured_at: '2026-08-28T13:57:52Z'
+captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/33177763918
+summary:
+  errors: 1
+  warnings: 4
+  hints: 0
+match_mode: exact
+findings:
+- rule_id: P-027
+  path: code/API_definitions/device-roaming-status-subscriptions.yaml
+  level: warn
+- rule_id: P-027
+  path: code/API_definitions/device-roaming-status.yaml
+  level: warn
+- rule_id: P-038
+  path: code/API_definitions/device-roaming-status-subscriptions.yaml
+  level: warn
+- rule_id: P-038
+  path: code/API_definitions/device-roaming-status.yaml
+  level: warn
+- engine: spectral
+  engine_rule: invalid-ref
+  path: code/API_definitions/device-roaming-status-subscriptions.yaml
+  level: error
