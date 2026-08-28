@@ -1,11 +1,12 @@
 schema_version: 1
 branch: regression/r4.3-api-templates
-captured_at: '2026-08-28T13:10:22Z'
-captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/33174138269
+description: invalid-ref renamed to S-229, S-011 cascade dropped (tooling#433)
+captured_at: '2026-08-28T17:42:53Z'
+captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/33195882599
 summary:
   errors: 1
   warnings: 6
-  hints: 5
+  hints: 4
 match_mode: exact
 findings:
 - rule_id: P-006
@@ -21,9 +22,9 @@ findings:
 - rule_id: P-027
   path: code/API_definitions/sample-service.yaml
   level: warn
-- rule_id: S-011
-  path: code/common/CAMARA_event_common.yaml
-  level: hint
+- rule_id: S-229
+  path: code/API_definitions/sample-service-subscriptions.yaml
+  level: error
 - rule_id: S-313
   path: code/API_definitions/sample-implicit-events.yaml
   level: hint
@@ -32,7 +33,3 @@ findings:
   path: code/API_definitions/sample-service.yaml
   level: hint
   count: 2
-- engine: spectral
-  engine_rule: invalid-ref
-  path: code/API_definitions/sample-service-subscriptions.yaml
-  level: error
