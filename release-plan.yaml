@@ -38,13 +38,3 @@ apis:
     target_api_status: rc
     main_contacts:
       - hdamker
-  - api_name: sample-service-subscriptions
-    target_api_version: 0.1.0
-    target_api_status: rc
-    main_contacts:
-      - hdamker
-  - api_name: sample-implicit-events
-    target_api_version: 0.1.0
-    target_api_status: rc
-    main_contacts:
-      - hdamker
