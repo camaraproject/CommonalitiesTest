@@ -100,7 +100,18 @@ remains a manual read of the content changes.
 Follow tooling's
 ["Recapturing a fixture"](https://github.com/camaraproject/tooling/blob/main/validation/docs/regression-testing.md#recapturing-a-fixture)
 — the runner and `--capture` mode are shared with `ReleaseTest`'s canary
-branches, this repository is just a different `--repo` target.
+branches, this repository is just a different `--repo` target, e.g.:
+
+```
+python3 validation/scripts/regression_runner.py \
+    --repo camaraproject/CommonalitiesTest \
+    --capture regression/qod-r4.1 \
+    --out /tmp/expected.yaml
+```
+
+Review `/tmp/expected.yaml`, then commit it as
+`.regression/regression-expected.yaml` and push directly to the same
+`regression/*` branch — no PR, as with any other change on these branches.
 
 ## State to preserve
 
