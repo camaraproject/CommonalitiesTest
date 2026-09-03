@@ -14,10 +14,8 @@
 > deliberately held at mixed vintages, as described below.
 
 > [!NOTE]
-> **Status: being set up.** The repository has been created but the content
-> synchronization and the regression fixtures described below are not in place
-> yet. Until they are, the layout here is the unmodified CAMARA API repository
-> template.
+> **Status: operational.** Content synchronization and the regression
+> fixtures described below are live, running on a daily schedule.
 
 ## Purpose
 
@@ -35,34 +33,42 @@ Commonalities, rather than by reasoning about the guidelines in the abstract.
 
 ## How it works
 
-The repository carries **two validation targets with deliberately opposite
-purposes**. Neither is the "correct" state that the other deviates from.
+The regression signal lives on five `regression/*` branches, each testing a
+different, deliberately distinct combination of API content against the same
+current `code/common/`. None is the "correct" state the others deviate from —
+each has its own expected finding count.
 
-| Target | API / Test definitions | `code/common/` + declared release | Expected findings |
-|---|---|---|---|
-| `main` | Frozen at the **last published** Commonalities release | Tracks the **upcoming** release | **Grows** over the release cycle |
-| `regression/main-mirror` | Fresh from Commonalities `main` | Tracks the **upcoming** release | **Near zero** |
+| Branch | API / Test definitions | What it tests |
+|---|---|---|
+| `regression/r4.3-api-templates` | Frozen at the **last published** (r4.3) Commonalities sample templates | Migration guide: findings accumulate as the **product** — together they describe what an already-published API repository must change to adopt the upcoming release. Growth here is expected, not a defect |
+| `regression/commonalities-main-mirror` | Fresh, unsubstituted templates straight from Commonalities `main` | Faithful current-state mirror. Findings expected **near zero**; a new one is a real regression on the Commonalities or tooling side |
+| `regression/qod-r4.1` | Real, published `QualityOnDemand` content (`source/r4.1`) | Whether a real, complex API sees the same migration signal as the artificial templates |
+| `regression/device-roaming-status-r2.1` | Real, published `DeviceRoamingStatus` content (`source/r2.1`) | The explicit-subscription `Config`/`ConfigBase` migration path — `qod-r4.1`'s implicit-only session model never references the shared subscription `Config` schema at all |
+| `regression/all-definitions-coverage` | Two artificial specs, purpose-built to reference every non-deprecated schema/response | Transitive coverage of `CAMARA_common.yaml`/`CAMARA_event_common.yaml` the other four branches leave untouched (the geometry family, phoneNumber-identified subscriptions) — a testing aid, not a community-facing artifact |
 
-* **`main`** models a real, already-published API repository that bumps its
-  declared Commonalities dependency and picks up the new common files without
-  touching its own API definitions. The findings accumulating here are the
-  product: taken together they are the **migration guide** from the last
-  published release to the upcoming one. A growing finding count on `main` is
-  expected, and is not a defect.
-* **`regression/main-mirror`** is a faithful mirror of Commonalities `main` —
-  definitions and common files both current. Here everything is meant to fit
-  together, so a **new finding is a real regression** on either the
-  Commonalities side or the tooling side, and is triaged as such.
+The pipeline lives in [`camaraproject/tooling`](https://github.com/camaraproject/tooling)
+as the reusable workflow
+[`.github/workflows/commonalities-regression-sync.yml`](https://github.com/camaraproject/tooling/blob/main/.github/workflows/commonalities-regression-sync.yml)
+(jobs `Sync` and `Sweep`): it syncs `code/common/` from Commonalities `main`
+onto this repository's `main`, cherry-picks that same commit onto every
+`regression/*` branch, regenerates the mirror branch's templates, and sweeps
+all branches for a fixture deviation. `main` itself is never swept — it is
+the sync source, not a fixture target.
 
-A scheduled workflow in this repository polls Commonalities `main`. On a change
-it opens (or amends) a sync pull request for `main`'s common files, and appends a
-commit to the mirror branch. The two are updated independently — the mirror does
-not wait on the sync PR being reviewed or merged.
+It is triggered by two callers: the thin
+[`.github/workflows/commonalities-regression.yml`](https://github.com/camaraproject/tooling/blob/main/.github/workflows/commonalities-regression.yml)
+(**Commonalities Regression** — daily schedule plus on-demand
+`workflow_dispatch`, no logic of its own beyond dispatching), and tooling's
+`validation-regression.yml`, which calls it with `force: true` on every
+tooling push so a tooling change is regression-tested against this content
+too.
 
-Each target commits a `.regression/regression-expected.yaml` fixture recording
-the findings already triaged and accepted. Tooling's validation regression
-workflow compares actual findings against those fixtures, so the actionable
-signal is a **deviation** from the fixture rather than the raw finding list.
+Each branch commits its own `.regression/regression-expected.yaml` fixture
+recording the findings already triaged and accepted. The sweep compares
+actual findings against that fixture, so the actionable signal is a
+**deviation**, not the raw finding list.
+
+**Latest results:** [tooling → Actions → Commonalities Regression](https://github.com/camaraproject/tooling/actions/workflows/commonalities-regression.yml).
 
 ## Validation ruleset
 
@@ -82,25 +88,36 @@ understands both the rule's intent and the content's intent.
 * **Tooling defect** — the rule fired wrongly, or no longer matches a changed
   requirement. File against tooling.
 * **Intentional change** — neither side is wrong and the fixture is simply
-  stale. Recapture `.regression/regression-expected.yaml`; no issue filed.
+  stale. Recapture `.regression/regression-expected.yaml` (see below); no
+  issue filed.
 
 Note that a *missing* rule produces no finding, so the fixture comparison cannot
 surface one. Spotting a changed Commonalities requirement that no rule covers yet
 remains a manual read of the content changes.
 
+### Recapturing a fixture
+
+Follow tooling's
+["Recapturing a fixture"](https://github.com/camaraproject/tooling/blob/main/validation/docs/regression-testing.md#recapturing-a-fixture)
+— the runner and `--capture` mode are shared with `ReleaseTest`'s canary
+branches, this repository is just a different `--repo` target.
+
 ## State to preserve
 
-* **`regression/main-mirror` is permanent** — it is a regression sweep target.
-  Do not rename or delete it.
-* **Both `.regression/regression-expected.yaml` fixtures are permanent.** Update
-  them by recapture when a change is triaged as intentional; do not delete them
-  to make a run pass.
-* **`main`'s API and test definitions are frozen** at the last published
-  Commonalities release. Advance them only when Commonalities publishes a new
-  release.
-* The declared Commonalities release and the content of `code/common/` **move
-  together**. Validation checks their consistency, so bumping one without the
-  other is itself a finding.
+* **All five `regression/*` branches are permanent** — each is a regression
+  sweep target. Do not rename or delete any of them.
+* **Every branch's `.regression/regression-expected.yaml` fixture is
+  permanent.** Update it by recapture when a change is triaged as
+  intentional; do not delete it to make a run pass.
+* **`regression/r4.3-api-templates`'s API and test definitions are frozen**
+  at the last published Commonalities release. Advance them only when
+  Commonalities publishes a new release.
+* **`main`'s own API definitions are frozen** — they are the source
+  `regression/r4.3-api-templates` was cut from and are not re-synced; `main`
+  continues to serve only as the `code/common/` sync source for every branch.
+* The declared Commonalities release (`release-plan.yaml`) and the content of
+  `code/common/` **move together** on every branch. Validation checks their
+  consistency, so a mismatch is itself a finding.
 
 <!-- CAMARA:RELEASE-INFO:START -->
 <!-- The following section is automatically maintained by the CAMARA project-administration tooling: https://github.com/camaraproject/project-administration -->
