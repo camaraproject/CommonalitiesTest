@@ -1,10 +1,10 @@
 schema_version: 1
-branch: regression/commonalities-main-mirror
-captured_at: '2026-08-28T13:11:50Z'
-captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/33174245540
+branch: regression/r4.4-api-templates
+captured_at: '2026-09-07T11:26:02Z'
+captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/34116517620
 summary:
   errors: 0
-  warnings: 6
+  warnings: 3
   hints: 4
 match_mode: exact
 findings:
@@ -12,15 +12,6 @@ findings:
   path: code/Test_definitions
   level: warn
   count: 3
-- rule_id: P-038
-  path: code/API_definitions/sample-implicit-events.yaml
-  level: warn
-- rule_id: P-038
-  path: code/API_definitions/sample-service-subscriptions.yaml
-  level: warn
-- rule_id: P-038
-  path: code/API_definitions/sample-service.yaml
-  level: warn
 - rule_id: S-313
   path: code/API_definitions/sample-implicit-events.yaml
   level: hint
