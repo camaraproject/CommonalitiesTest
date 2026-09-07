@@ -33,14 +33,15 @@ Commonalities, rather than by reasoning about the guidelines in the abstract.
 
 ## How it works
 
-The regression signal lives on five `regression/*` branches, each testing a
+The regression signal lives on six `regression/*` branches, each testing a
 different, deliberately distinct combination of API content against the same
 current `code/common/`. None is the "correct" state the others deviate from —
 each has its own expected finding count.
 
 | Branch | API / Test definitions | What it tests |
 |---|---|---|
-| `regression/r4.3-api-templates` | Frozen at the **last published** (r4.3) Commonalities sample templates | Migration guide: findings accumulate as the **product** — together they describe what an already-published API repository must change to adopt the upcoming release. Growth here is expected, not a defect |
+| `regression/r4.4-api-templates` | Frozen at the **last published** (r4.4) Commonalities sample templates | Migration guide: findings accumulate as the **product** — together they describe what an already-published API repository must change to adopt the upcoming release. Growth here is expected, not a defect. Takes over `r4.3-api-templates`' ongoing role now that r4.4 is published |
+| `regression/r4.3-api-templates` | Frozen at the **previously published** (r4.3) Commonalities sample templates | Kept temporarily alongside `r4.4-api-templates` for repositories still migrating from r4.3; retired once the Sync26 meta-release closes, or once all repositories have moved to Commonalities r4.4, whichever comes first |
 | `regression/commonalities-main-mirror` | Fresh, unsubstituted templates straight from Commonalities `main` | Faithful current-state mirror. Findings expected **near zero**; a new one is a real regression on the Commonalities or tooling side |
 | `regression/qod-r4.1` | Real, published `QualityOnDemand` content (`source/r4.1`) | Whether a real, complex API sees the same migration signal as the artificial templates |
 | `regression/device-roaming-status-r2.1` | Real, published `DeviceRoamingStatus` content (`source/r2.1`) | The explicit-subscription `Config`/`ConfigBase` migration path — `qod-r4.1`'s implicit-only session model never references the shared subscription `Config` schema at all |
@@ -115,14 +116,17 @@ Review `/tmp/expected.yaml`, then commit it as
 
 ## State to preserve
 
-* **All five `regression/*` branches are permanent** — each is a regression
-  sweep target. Do not rename or delete any of them.
+* **All six `regression/*` branches are permanent** — each is a regression
+  sweep target. Do not rename or delete any of them, except
+  `regression/r4.3-api-templates` once its retirement condition (above) is met.
 * **Every branch's `.regression/regression-expected.yaml` fixture is
   permanent.** Update it by recapture when a change is triaged as
   intentional; do not delete it to make a run pass.
-* **`regression/r4.3-api-templates`'s API and test definitions are frozen**
-  at the last published Commonalities release. Advance them only when
-  Commonalities publishes a new release.
+* **The frozen-templates branches' API and test definitions are frozen** at
+  the Commonalities release each one represents. A branch only moves when
+  Commonalities actually publishes a new release, and "moving" means adding
+  a new branch (as with `r4.3-api-templates` → `r4.4-api-templates`), not
+  renaming the old one in place.
 * **`main`'s own API definitions are frozen** — they are the source
   `regression/r4.3-api-templates` was cut from and are not re-synced; `main`
   continues to serve only as the `code/common/` sync source for every branch.
