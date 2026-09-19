@@ -51,25 +51,23 @@ The pipeline lives in [`camaraproject/tooling`](https://github.com/camaraproject
 as the reusable workflow
 [`.github/workflows/commonalities-regression-sync.yml`](https://github.com/camaraproject/tooling/blob/main/.github/workflows/commonalities-regression-sync.yml)
 (jobs `Sync` and `Sweep`): it syncs `code/common/` from Commonalities `main`
-onto this repository's `main`, cherry-picks that same commit onto every
+onto this repository's `main`, converges that same content onto every
 `regression/*` branch, regenerates the mirror branch's templates, and sweeps
 all branches for a fixture deviation. `main` itself is never swept — it is
 the sync source, not a fixture target.
 
-It is triggered by two callers: the thin
-[`.github/workflows/commonalities-regression.yml`](https://github.com/camaraproject/tooling/blob/main/.github/workflows/commonalities-regression.yml)
-(**Commonalities Regression** — daily schedule plus on-demand
-`workflow_dispatch`, no logic of its own beyond dispatching), and tooling's
-`validation-regression.yml`, which calls it with `force: true` on every
-tooling push so a tooling change is regression-tested against this content
-too.
+It has three callers, none of which contain any logic of their own beyond dispatching:
+
+- [`camaraproject/Commonalities`'s `commonalities-regression.yml`](https://github.com/camaraproject/Commonalities/blob/main/.github/workflows/commonalities-regression.yml) (**Commonalities Regression**) — the daily schedule, plus on-demand `workflow_dispatch`. This is the only scheduled trigger.
+- [`camaraproject/tooling`'s `commonalities-regression.yml`](https://github.com/camaraproject/tooling/blob/main/.github/workflows/commonalities-regression.yml) — same filename, different repo, kept for ad hoc `workflow_dispatch` from tooling; carries no schedule.
+- `camaraproject/tooling`'s `validation-regression.yml`, which calls the reusable workflow directly with `force: true` on every tooling push so a tooling change is regression-tested against this content too.
 
 Each branch commits its own `.regression/regression-expected.yaml` fixture
 recording the findings already triaged and accepted. The sweep compares
 actual findings against that fixture, so the actionable signal is a
 **deviation**, not the raw finding list.
 
-**Latest results:** [tooling → Actions → Commonalities Regression](https://github.com/camaraproject/tooling/actions/workflows/commonalities-regression.yml).
+**Latest results:** [Commonalities → Actions → Commonalities Regression](https://github.com/camaraproject/Commonalities/actions/workflows/commonalities-regression.yml).
 
 ## Validation ruleset
 
