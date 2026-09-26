@@ -1,11 +1,12 @@
 schema_version: 1
 branch: regression/r4.3-api-templates
-description: invalid-ref renamed to S-229, S-011 cascade dropped (tooling#433)
-captured_at: '2026-08-28T17:42:53Z'
-captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/33195882599
+description: invalid-ref renamed to S-229, S-011 cascade dropped (tooling#433);
+  P-027 blank-line-after-BEGIN check added (tooling#457)
+captured_at: '2026-09-26T16:26:34Z'
+captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/36255398215
 summary:
   errors: 1
-  warnings: 6
+  warnings: 17
   hints: 4
 match_mode: exact
 findings:
@@ -16,12 +17,15 @@ findings:
 - rule_id: P-027
   path: code/API_definitions/sample-implicit-events.yaml
   level: warn
+  count: 5
 - rule_id: P-027
   path: code/API_definitions/sample-service-subscriptions.yaml
   level: warn
+  count: 4
 - rule_id: P-027
   path: code/API_definitions/sample-service.yaml
   level: warn
+  count: 5
 - rule_id: S-229
   path: code/API_definitions/sample-service-subscriptions.yaml
   level: error
