@@ -1,17 +1,13 @@
 schema_version: 1
 branch: regression/r4.4-api-templates
-captured_at: '2026-09-07T11:26:02Z'
-captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/34116517620
+captured_at: '2026-10-23T19:50:14Z'
+captured_from_run: https://github.com/camaraproject/CommonalitiesTest/actions/runs/40014422993
 summary:
   errors: 0
-  warnings: 3
+  warnings: 0
   hints: 4
 match_mode: exact
 findings:
-- rule_id: P-006
-  path: code/Test_definitions
-  level: warn
-  count: 3
 - rule_id: S-313
   path: code/API_definitions/sample-implicit-events.yaml
   level: hint
