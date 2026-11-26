@@ -3,5 +3,5 @@ sources:
   release: r4.5
   files:
     CAMARA_common.yaml: 0bd121b6015c7596a43a8313e27c41b5d1646875
-    CAMARA_event_common.yaml: f3b4bec3a543f9bca06a6854de3109486643dc02
+    CAMARA_event_common.yaml: c57067f67f7aed46e02a972bfbd22f68a132619a
     info-description-templates.yaml: 299fcb7b9357b4de0478c2bcb637359b600ba986
